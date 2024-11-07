@@ -1,5 +1,5 @@
-#include <SDL.h>
-#include <SDL_image.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 #include <stdio.h>
 #include <vector>
 
@@ -134,13 +134,13 @@ void drawBoard(SDL_Renderer* renderer) {
 }
 
 // Função para desenhar as peças
-void drawPieces(SDL_Renderer* renderer, std::vector<Piece> pieces, SDL_Texture* tex) {
+void drawPieces(SDL_Renderer* renderer, std::vector<Piece> pieces, SDL_Texture* tex, int movingPieceID) {
     SDL_Rect src, dest;
 
     src = {0,0,60,60};
     dest = {0,0,TILE_SIZE,TILE_SIZE};
 
-    for(int i; i<pieces.size(); i++)
+    for(int i=0; i<pieces.size(); i++)
     {
         //Determina a posição na textura fonte a partir da informação da peça
         switch(pieces[i].color){
@@ -166,6 +166,35 @@ void drawPieces(SDL_Renderer* renderer, std::vector<Piece> pieces, SDL_Texture* 
 
         dest.x = pieces[i].windowX;
         dest.y = pieces[i].windowY;
+
+        SDL_RenderCopy(renderer, tex, &src, &dest);
+    }
+
+    //Mostra a peça sendo movida por cima
+    if(movingPieceID >= 0){
+        switch(pieces[movingPieceID].color){
+            case 0: src.y=60;
+            break;
+            case 1: src.y=0;
+            break;
+        }
+        switch(pieces[movingPieceID].type){
+            case 'q': src.x=0;
+            break;
+            case 'k': src.x=60;
+            break;
+            case 'r': src.x=120;
+            break;
+            case 'n': src.x=180;
+            break;
+            case 'b': src.x=240;
+            break;
+            case 'p': src.x=300;
+            break;
+        }
+
+        dest.x = pieces[movingPieceID].windowX;
+        dest.y = pieces[movingPieceID].windowY;
 
         SDL_RenderCopy(renderer, tex, &src, &dest);
     }
@@ -277,7 +306,7 @@ int main(int argc, char* argv[]) {
 
         // Desenha o tabuleiro e as peças
         drawBoard(renderer);
-        drawPieces(renderer, pieces, pieces_tex);
+        drawPieces(renderer, pieces, pieces_tex, movingPieceID);
 
         // Atualiza a tela
         SDL_RenderPresent(renderer);
